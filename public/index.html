@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Malika Smart Booth - Sistem manajemen booth Kebab & Burger">
+    <title>Malika Smart Booth</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- App CSS -->
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+    <!-- App Container -->
+    <div id="app">
+        <!-- Header -->
+        <header id="app-header">
+            <div class="header-left">
+                <span class="logo-icon">🥙</span>
+                <h1 class="logo-text">Malika Kebab & Burger Management System</h1>
+            </div>
+            <div class="header-right">
+                <span id="header-clock" class="header-clock"></span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main id="main-content">
+            <!-- POS Page -->
+            <section id="page-pos" class="page active">
+                <!-- Channel selector -->
+                <div class="channel-selector">
+                    <button class="channel-btn active" data-channel="Langsung" id="btn-channel-langsung">
+                        <span class="channel-icon">🏪</span>
+                        <span>Langsung</span>
+                    </button>
+                    <button class="channel-btn" data-channel="ShopeeFood" id="btn-channel-shopee">
+                        <span class="channel-icon">🟠</span>
+                        <span>ShopeeFood</span>
+                    </button>
+                </div>
+
+                <!-- Langsung Mode -->
+                <div id="pos-langsung" class="pos-mode">
+                    <!-- Payment selector -->
+                    <div class="payment-selector">
+                        <button class="payment-btn active" data-method="Tunai" id="btn-pay-tunai">
+                            <span>💵</span> Tunai
+                        </button>
+                        <button class="payment-btn" data-method="QRIS" id="btn-pay-qris">
+                            <span>📱</span> QRIS
+                        </button>
+                    </div>
+
+                    <div class="pos-layout">
+                        <!-- Menu Grid -->
+                        <div class="menu-section">
+                            <!-- Category Tabs -->
+                            <div class="category-tabs" id="category-tabs"></div>
+                            <!-- Menu Items -->
+                            <div class="menu-grid" id="menu-grid"></div>
+                        </div>
+
+                        <!-- Cart -->
+                        <div class="cart-section">
+                            <div class="cart-header">
+                                <h3>🛒 Keranjang</h3>
+                                <button class="btn-clear-cart" id="btn-clear-cart" title="Kosongkan">✕</button>
+                            </div>
+                            <div class="cart-items" id="cart-items">
+                                <div class="cart-empty">
+                                    <span>🛒</span>
+                                    <p>Keranjang kosong</p>
+                                    <p class="cart-empty-sub">Tap menu untuk menambahkan</p>
+                                </div>
+                            </div>
+                            <div class="cart-summary" id="cart-summary">
+                                <div class="cart-total-row">
+                                    <span>Total</span>
+                                    <span class="cart-total-amount" id="cart-total">Rp 0</span>
+                                </div>
+                                <button class="btn-pay" id="btn-checkout" disabled>
+                                    ✅ BAYAR
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ShopeeFood Mode -->
+                <div id="pos-shopee" class="pos-mode" style="display:none;">
+                    <div class="shopee-form">
+                        <div class="shopee-card">
+                            <h3>📦 Input Penjualan ShopeeFood</h3>
+                            <p class="shopee-desc">Masukkan total penjualan dari aplikasi ShopeeFood hari ini</p>
+
+                            <div class="form-group">
+                                <label for="shopee-total-input">Total dari ShopeeFood</label>
+                                <div class="input-currency">
+                                    <span class="currency-prefix">Rp</span>
+                                    <input type="number" id="shopee-total-input" placeholder="0" min="0" step="1000">
+                                </div>
+                            </div>
+
+                            <div class="shopee-calc" id="shopee-calc" style="display:none;">
+                                <div class="calc-row">
+                                    <span>Subtotal ShopeeFood</span>
+                                    <span id="shopee-subtotal">Rp 0</span>
+                                </div>
+                                <div class="calc-row cut">
+                                    <span>Potongan 25%</span>
+                                    <span id="shopee-cut">-Rp 0</span>
+                                </div>
+                                <div class="calc-row total">
+                                    <span>💰 Pendapatan Bersih</span>
+                                    <span id="shopee-net">Rp 0</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="shopee-notes">Catatan (opsional)</label>
+                                <textarea id="shopee-notes" placeholder="Misal: 5 kebab beef + 3 burger + 2 takoyaki"
+                                    rows="2"></textarea>
+                            </div>
+
+                            <button class="btn-pay btn-shopee-submit" id="btn-shopee-submit" disabled>
+                                ✅ SIMPAN
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Today's History -->
+                <div class="history-section">
+                    <h3 class="section-title">📋 Riwayat Hari Ini</h3>
+                    <div id="history-list" class="history-list"></div>
+                </div>
+            </section>
+
+            <!-- Dashboard Page -->
+            <section id="page-dashboard" class="page">
+                <div class="dashboard-header">
+                    <h2>📊 Dashboard</h2>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="summary-cards" id="summary-cards">
+                    <div class="summary-card card-omzet">
+                        <div class="card-icon">💵</div>
+                        <div class="card-label">Omzet</div>
+                        <div class="card-value" id="card-omzet">Rp 0</div>
+                    </div>
+                    <div class="summary-card card-expense">
+                        <div class="card-icon">💸</div>
+                        <div class="card-label">Pengeluaran</div>
+                        <div class="card-value" id="card-expense">Rp 0</div>
+                    </div>
+                    <div class="summary-card card-profit">
+                        <div class="card-icon">💰</div>
+                        <div class="card-label">Laba Bersih</div>
+                        <div class="card-value" id="card-profit">Rp 0</div>
+                    </div>
+                    <div class="summary-card card-trx">
+                        <div class="card-icon">📦</div>
+                        <div class="card-label">Transaksi</div>
+                        <div class="card-value" id="card-trx">0</div>
+                    </div>
+                </div>
+
+                <!-- Weekly Recap Accordion -->
+                <div class="weekly-recap-section" id="weekly-recap-section">
+                    <button class="weekly-recap-toggle" id="weekly-recap-toggle">
+                        <div class="weekly-recap-toggle-left">
+                            <span class="weekly-recap-icon">📅</span>
+                            <span class="weekly-recap-title">Rekapan Penjualan Seminggu</span>
+                        </div>
+                        <span class="weekly-recap-arrow" id="weekly-recap-arrow">▼</span>
+                    </button>
+                    <div class="weekly-recap-dropdown" id="weekly-recap-dropdown">
+                        <div class="weekly-recap-list" id="weekly-recap-list">
+                            <div class="loading-text">Memuat data...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Period Selector (moved here) -->
+                <div class="period-selector-section">
+                    <div class="period-selector">
+                        <button class="period-btn active" data-period="today">Hari Ini</button>
+                        <button class="period-btn" data-period="week">7 Hari</button>
+                        <button class="period-btn" data-period="month">30 Hari</button>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="charts-grid">
+                    <div class="chart-card wide">
+                        <h4>📈 Tren Penjualan</h4>
+                        <canvas id="chart-trend"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h4>🏆 Menu Terlaris</h4>
+                        <canvas id="chart-top-menu"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h4>🥧 Per Channel</h4>
+                        <canvas id="chart-channels"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h4>⏰ Per Jam</h4>
+                        <canvas id="chart-hourly"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h4>💳 Metode Bayar</h4>
+                        <canvas id="chart-payments"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Chat Page -->
+            <section id="page-chat" class="page">
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <h3>💬 Asisten Malika</h3>
+                        <button class="btn-reset-chat" id="btn-reset-chat" title="Reset percakapan">🗑️</button>
+                    </div>
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="chat-bubble bot">
+                            <div class="bubble-content">
+                                Halo Boss! 👋 Saya Asisten Malika. Mau catat pengeluaran atau tanya data bisnis hari
+                                ini?
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chat-input" placeholder="Ketik pesan..." autocomplete="off">
+                        <button class="btn-send" id="btn-send">➤</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav id="bottom-nav">
+            <button class="nav-btn active" data-page="pos" id="nav-pos">
+                <span class="nav-icon">🛒</span>
+                <span class="nav-label">POS</span>
+            </button>
+            <button class="nav-btn" data-page="dashboard" id="nav-dashboard">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Dashboard</span>
+            </button>
+            <button class="nav-btn" data-page="chat" id="nav-chat">
+                <span class="nav-icon">💬</span>
+                <span class="nav-label">Chat AI</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Extras Modal -->
+    <div class="modal-overlay" id="extras-modal" style="display:none;">
+        <div class="modal-content">
+            <h3 id="extras-modal-title">Tambah Extras</h3>
+            <div id="extras-list" class="extras-list"></div>
+            <div class="modal-actions">
+                <button class="btn-modal-cancel" id="btn-extras-cancel">Batal</button>
+                <button class="btn-modal-confirm" id="btn-extras-confirm">Tambahkan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Scripts -->
+    <script src="/js/api.js"></script>
+    <script src="/js/pos.js"></script>
+    <script src="/js/dashboard.js"></script>
+    <script src="/js/chat.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+
+</html>

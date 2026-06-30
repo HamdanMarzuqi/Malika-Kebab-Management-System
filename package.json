@@ -1,0 +1,21 @@
+{
+  "name": "malika-smart-booth",
+  "version": "1.0.0",
+  "description": "Sistem otomatisasi booth FnB Malika Kebab & Burger - POS, AI Chatbot, Dashboard",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js"
+  },
+  "keywords": ["pos", "fnb", "booth", "kasir", "chatbot"],
+  "author": "Malika Kebab & Burger",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.0",
+    "sql.js": "^1.11.0",
+    "googleapis": "^140.0.0",
+    "groq-sdk": "^0.8.0",
+    "dotenv": "^16.4.0",
+    "cors": "^2.8.5"
+  }
+}
