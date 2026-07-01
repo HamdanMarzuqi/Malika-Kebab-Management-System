@@ -34,7 +34,7 @@ async function initDatabase() {
             channel_cut INTEGER DEFAULT 0,
             total INTEGER NOT NULL,
             notes TEXT DEFAULT NULL,
-            created_at DATETIME DEFAULT (datetime('now', 'localtime'))
+            created_at DATETIME DEFAULT (datetime('now', '+7 hours'))
         )
     `);
 
@@ -59,7 +59,7 @@ async function initDatabase() {
             description TEXT NOT NULL,
             amount INTEGER NOT NULL,
             category TEXT DEFAULT 'Lainnya',
-            created_at DATETIME DEFAULT (datetime('now', 'localtime'))
+            created_at DATETIME DEFAULT (datetime('now', '+7 hours'))
         )
     `);
 
@@ -172,7 +172,7 @@ function deleteSale(id) {
 function getSalesToday() {
     const sales = all(`
         SELECT * FROM sales
-        WHERE date(created_at) = date('now', 'localtime')
+        WHERE date(created_at) = date('now', '+7 hours')
         ORDER BY created_at DESC
     `);
 
@@ -234,7 +234,7 @@ function getChannelComparison(period = 'today') {
 function getHourlySales(date = null) {
     const dateFilter = date
         ? `date(created_at) = date('${date}')`
-        : "date(created_at) = date('now', 'localtime')";
+        : "date(created_at) = date('now', '+7 hours')";
 
     return all(`
         SELECT
@@ -270,7 +270,7 @@ function getDailyTrend(days = 7) {
             COALESCE(SUM(channel_cut), 0) as potongan,
             COALESCE(SUM(total), 0) as bersih
         FROM sales
-        WHERE date(created_at) >= date('now', 'localtime', '-' || ? || ' days')
+        WHERE date(created_at) >= date('now', '+7 hours', '-' || ? || ' days')
         GROUP BY date(created_at)
         ORDER BY date
     `, [days]);
@@ -296,7 +296,7 @@ function deleteExpense(id) {
 function getExpensesToday() {
     return all(`
         SELECT * FROM expenses
-        WHERE date(created_at) = date('now', 'localtime')
+        WHERE date(created_at) = date('now', '+7 hours')
         ORDER BY created_at DESC
     `);
 }
@@ -329,7 +329,7 @@ function getLastExpense() {
 function getDailySummary(date = null) {
     const dateFilter = date
         ? `date(created_at) = date('${date}')`
-        : "date(created_at) = date('now', 'localtime')";
+        : "date(created_at) = date('now', '+7 hours')";
 
     const sales = get(`
         SELECT
@@ -359,10 +359,10 @@ function getWeeklyDetailedRecap() {
     const days = [];
     for (let i = 6; i >= 0; i--) {
         const dateOffset = `-${i} days`;
-        const dateFilter = `date(created_at) = date('now', 'localtime', '${dateOffset}')`;
+        const dateFilter = `date(created_at) = date('now', '+7 hours', '${dateOffset}')`;
 
         // Get the actual date string
-        const dateRow = get(`SELECT date('now', 'localtime', '${dateOffset}') as date_val`);
+        const dateRow = get(`SELECT date('now', '+7 hours', '${dateOffset}') as date_val`);
         const dateStr = dateRow ? dateRow.date_val : '';
 
         // Sales summary
@@ -419,12 +419,12 @@ function getWeeklyDetailedRecap() {
 function getDateFilter(period, tableAlias = null) {
     const col = tableAlias ? `${tableAlias}.created_at` : 'created_at';
     switch (period) {
-        case 'today': return `date(${col}) = date('now', 'localtime')`;
-        case 'yesterday': return `date(${col}) = date('now', 'localtime', '-1 day')`;
-        case 'week': return `date(${col}) >= date('now', 'localtime', '-7 days')`;
-        case 'month': return `date(${col}) >= date('now', 'localtime', '-30 days')`;
+        case 'today': return `date(${col}) = date('now', '+7 hours')`;
+        case 'yesterday': return `date(${col}) = date('now', '+7 hours', '-1 day')`;
+        case 'week': return `date(${col}) >= date('now', '+7 hours', '-7 days')`;
+        case 'month': return `date(${col}) >= date('now', '+7 hours', '-30 days')`;
         case 'all': return '1=1';
-        default: return `date(${col}) = date('now', 'localtime')`;
+        default: return `date(${col}) = date('now', '+7 hours')`;
     }
 }
 
