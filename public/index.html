@@ -27,7 +27,10 @@
         <header id="app-header">
             <div class="header-left">
                 <span class="logo-icon">🥙</span>
-                <h1 class="logo-text">Malika Kebab & Burger Management System</h1>
+                <h1 class="logo-text">
+                    <span class="logo-full">Malika Kebab & Burger Management System</span>
+                    <span class="logo-short">Malika Smart Booth</span>
+                </h1>
             </div>
             <div class="header-right">
                 <span id="header-clock" class="header-clock"></span>
@@ -38,6 +41,8 @@
         <main id="main-content">
             <!-- POS Page -->
             <section id="page-pos" class="page active">
+                <!-- Section label: Tipe Pesanan -->
+                <div class="section-label">📋 Tipe Pesanan</div>
                 <!-- Channel selector -->
                 <div class="channel-selector">
                     <button class="channel-btn active" data-channel="Langsung" id="btn-channel-langsung">
@@ -52,6 +57,8 @@
 
                 <!-- Langsung Mode -->
                 <div id="pos-langsung" class="pos-mode">
+                    <!-- Section label: Pembayaran -->
+                    <div class="section-label">💳 Pembayaran</div>
                     <!-- Payment selector -->
                     <div class="payment-selector">
                         <button class="payment-btn active" data-method="Tunai" id="btn-pay-tunai">
@@ -140,10 +147,18 @@
                     </div>
                 </div>
 
-                <!-- Today's History -->
+                <!-- Today's History (Collapsible on mobile) -->
                 <div class="history-section">
-                    <h3 class="section-title">📋 Riwayat Hari Ini</h3>
-                    <div id="history-list" class="history-list"></div>
+                    <button class="history-toggle" id="history-toggle">
+                        <span class="history-toggle-left">
+                            <span>📋</span>
+                            <span class="history-toggle-title">Riwayat Hari Ini</span>
+                        </span>
+                        <span class="history-toggle-arrow" id="history-toggle-arrow">▼</span>
+                    </button>
+                    <div class="history-dropdown" id="history-dropdown">
+                        <div id="history-list" class="history-list"></div>
+                    </div>
                 </div>
             </section>
 
@@ -250,6 +265,47 @@
             </section>
         </main>
 
+        <div class="floating-cart-bar" id="floating-cart-bar" style="display:none;">
+            <div class="floating-cart-info" id="floating-cart-toggle">
+                <div class="floating-cart-badge" id="floating-cart-badge">0</div>
+                <div class="floating-cart-text">
+                    <span class="floating-cart-label">Keranjang</span>
+                    <span class="floating-cart-icon">▲</span>
+                </div>
+                <span class="floating-cart-total" id="floating-cart-total">Rp 0</span>
+            </div>
+            <button class="floating-cart-pay" id="floating-cart-pay">
+                BAYAR ➤
+            </button>
+        </div>
+
+        <!-- Mobile Cart Bottom Sheet -->
+        <div class="cart-sheet-overlay" id="cart-sheet-overlay"></div>
+        <div class="cart-sheet" id="cart-sheet">
+            <div class="cart-sheet-handle">
+                <div class="cart-sheet-handle-bar"></div>
+            </div>
+            <div class="cart-sheet-header">
+                <h3>🛒 Keranjang</h3>
+                <button class="btn-clear-cart" id="btn-clear-cart-mobile" title="Kosongkan">✕</button>
+            </div>
+            <div class="cart-sheet-items" id="cart-sheet-items">
+                <div class="cart-empty">
+                    <span>🛒</span>
+                    <p>Keranjang kosong</p>
+                </div>
+            </div>
+            <div class="cart-sheet-footer">
+                <div class="cart-total-row">
+                    <span>Total</span>
+                    <span class="cart-total-amount" id="cart-sheet-total">Rp 0</span>
+                </div>
+                <button class="btn-pay" id="btn-checkout-mobile" disabled>
+                    ✅ BAYAR SEKARANG
+                </button>
+            </div>
+        </div>
+
         <!-- Bottom Navigation -->
         <nav id="bottom-nav">
             <button class="nav-btn active" data-page="pos" id="nav-pos">
@@ -262,7 +318,7 @@
             </button>
             <button class="nav-btn" data-page="chat" id="nav-chat">
                 <span class="nav-icon">💬</span>
-                <span class="nav-label">Chat AI</span>
+                <span class="nav-label">Asisten</span>
             </button>
         </nav>
     </div>

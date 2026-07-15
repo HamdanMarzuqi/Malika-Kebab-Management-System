@@ -6,7 +6,10 @@ const Dashboard = {
     weeklyRecapOpen: false,
 
     async init() {
-        this.bindEvents();
+        if (!this.initialized) {
+            this.bindEvents();
+            this.initialized = true;
+        }
         await this.refresh();
     },
 
@@ -159,7 +162,10 @@ const Dashboard = {
 
     async loadSummary() {
         try {
-            const summary = await API.get(`/api/dashboard/summary`);
+            // Note: Our API getDailySummary only accepts a specific date right now.
+            // For true period filtering, the backend needs an update to support it. 
+            // We pass the current period as 'period' param to align with other APIs just in case it is updated later.
+            const summary = await API.get(`/api/dashboard/summary?period=${this.currentPeriod}`);
             const expenses = await API.get(`/api/expenses/summary?period=${this.currentPeriod}`);
 
             document.getElementById('card-omzet').textContent = formatRupiah(summary.total_bersih || 0);

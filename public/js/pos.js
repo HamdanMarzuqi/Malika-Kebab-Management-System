@@ -11,6 +11,11 @@ const POS = {
         await this.loadMenu();
         this.bindEvents();
         this.loadHistory();
+        this.initMobileUI();
+    },
+
+    isMobile() {
+        return window.innerWidth < 768;
     },
 
     async loadMenu() {
@@ -120,8 +125,7 @@ const POS = {
         };
 
         const onCancel = () => {
-            // Add without extras
-            this.addToCart(menuName, price, category, []);
+            // Cancel - don't add anything
             modal.style.display = 'none';
             cleanup();
         };
@@ -163,23 +167,33 @@ const POS = {
         const container = document.getElementById('cart-items');
         const totalEl = document.getElementById('cart-total');
         const checkoutBtn = document.getElementById('btn-checkout');
+        
+        // Also get mobile sheet elements
+        const sheetItems = document.getElementById('cart-sheet-items');
+        const sheetTotal = document.getElementById('cart-sheet-total');
+        const sheetCheckout = document.getElementById('btn-checkout-mobile');
 
         if (this.cart.length === 0) {
-            container.innerHTML = `
+            const emptyHTML = `
                 <div class="cart-empty">
                     <span>🛒</span>
                     <p>Keranjang kosong</p>
                     <p class="cart-empty-sub">Tap menu untuk menambahkan</p>
                 </div>
             `;
+            container.innerHTML = emptyHTML;
+            if (sheetItems) sheetItems.innerHTML = emptyHTML;
             totalEl.textContent = 'Rp 0';
+            if (sheetTotal) sheetTotal.textContent = 'Rp 0';
             checkoutBtn.disabled = true;
+            if (sheetCheckout) sheetCheckout.disabled = true;
+            this.updateFloatingBar();
             return;
         }
 
         let grandTotal = 0;
 
-        container.innerHTML = this.cart.map((item, idx) => {
+        const cartHTML = this.cart.map((item, idx) => {
             const extrasTotal = item.extras.reduce((sum, e) => sum + e.price, 0);
             const itemTotal = (item.price + extrasTotal) * item.quantity;
             grandTotal += itemTotal;
@@ -203,8 +217,15 @@ const POS = {
             `;
         }).join('');
 
+        container.innerHTML = cartHTML;
+        if (sheetItems) sheetItems.innerHTML = cartHTML;
+        
         totalEl.textContent = formatRupiah(grandTotal);
+        if (sheetTotal) sheetTotal.textContent = formatRupiah(grandTotal);
         checkoutBtn.disabled = false;
+        if (sheetCheckout) sheetCheckout.disabled = false;
+        
+        this.updateFloatingBar();
     },
 
     updateQty(idx, delta) {
@@ -326,7 +347,7 @@ const POS = {
                         </div>
                         <div>
                             <div class="history-amount">${formatRupiah(sale.total)}</div>
-                            ${isShopee ? `<div class="history-time text-danger" style="font-size:10px;">-${formatRupiah(sale.channel_cut)}</div>` : ''}
+                            ${isShopee ? `<div class="history-time text-danger shopee-cut-history">-${formatRupiah(sale.channel_cut)}</div>` : ''}
                             <div class="history-time">${formatTime(sale.created_at)}</div>
                         </div>
                         <button class="history-delete" onclick="POS.deleteSale(${sale.id})">🗑️</button>
@@ -406,5 +427,118 @@ const POS = {
 
         // ShopeeFood submit
         document.getElementById('btn-shopee-submit').addEventListener('click', () => this.submitShopeeFood());
+
+        // History toggle (accordion)
+        const historyToggle = document.getElementById('history-toggle');
+        const historyDropdown = document.getElementById('history-dropdown');
+        const historyArrow = document.getElementById('history-toggle-arrow');
+        if (historyToggle) {
+            historyToggle.addEventListener('click', () => {
+                historyDropdown.classList.toggle('open');
+                historyArrow.classList.toggle('open');
+            });
+        }
+
+        // Floating cart bar - open sheet
+        const floatingToggle = document.getElementById('floating-cart-toggle');
+        if (floatingToggle) {
+            floatingToggle.addEventListener('click', () => this.openCartSheet());
+        }
+
+        // Floating cart bar - direct pay
+        const floatingPay = document.getElementById('floating-cart-pay');
+        if (floatingPay) {
+            floatingPay.addEventListener('click', () => this.checkout());
+        }
+
+        // Bottom sheet overlay - close
+        const sheetOverlay = document.getElementById('cart-sheet-overlay');
+        if (sheetOverlay) {
+            sheetOverlay.addEventListener('click', () => this.closeCartSheet());
+        }
+
+        // Bottom sheet handle - close on tap
+        const sheetHandle = document.querySelector('.cart-sheet-handle');
+        if (sheetHandle) {
+            sheetHandle.addEventListener('click', () => this.closeCartSheet());
+        }
+
+        // Mobile checkout button in sheet
+        const mobileCheckout = document.getElementById('btn-checkout-mobile');
+        if (mobileCheckout) {
+            mobileCheckout.addEventListener('click', () => {
+                this.closeCartSheet();
+                this.checkout();
+            });
+        }
+
+        // Mobile clear cart in sheet
+        const mobileClearCart = document.getElementById('btn-clear-cart-mobile');
+        if (mobileClearCart) {
+            mobileClearCart.addEventListener('click', () => {
+                if (this.cart.length > 0 && confirm('Kosongkan keranjang?')) {
+                    this.clearCart();
+                    this.closeCartSheet();
+                }
+            });
+        }
+    },
+
+    // === MOBILE UI METHODS ===
+
+    initMobileUI() {
+        // Initial state
+        this.updateFloatingBar();
+        
+        // Listen for resize to update visibility
+        window.addEventListener('resize', () => this.updateFloatingBar());
+    },
+
+    updateFloatingBar() {
+        const bar = document.getElementById('floating-cart-bar');
+        if (!bar) return;
+
+        if (!this.isMobile()) {
+            bar.style.display = 'none';
+            return;
+        }
+
+        const totalQty = this.cart.reduce((sum, item) => sum + item.quantity, 0);
+
+        if (totalQty === 0) {
+            bar.style.display = 'none';
+            return;
+        }
+
+        // Calculate grand total
+        let grandTotal = 0;
+        this.cart.forEach(item => {
+            const extrasTotal = item.extras.reduce((sum, e) => sum + e.price, 0);
+            grandTotal += (item.price + extrasTotal) * item.quantity;
+        });
+
+        bar.style.display = 'flex';
+        document.getElementById('floating-cart-badge').textContent = totalQty;
+        document.getElementById('floating-cart-total').textContent = formatRupiah(grandTotal);
+    },
+
+    openCartSheet() {
+        const sheet = document.getElementById('cart-sheet');
+        const overlay = document.getElementById('cart-sheet-overlay');
+        if (sheet && overlay) {
+            sheet.classList.add('open');
+            overlay.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+    },
+
+    closeCartSheet() {
+        const sheet = document.getElementById('cart-sheet');
+        const overlay = document.getElementById('cart-sheet-overlay');
+        if (sheet && overlay) {
+            sheet.classList.remove('open');
+            overlay.classList.remove('open');
+            document.body.style.overflow = '';
+        }
     }
 };
