@@ -1,6 +1,5 @@
-<!-- Drop this at the very top of the repo's README.md -->
 <p align="center">
-  <img src="./banner-malika-kebab-management-system.gif" alt="Malika POS — point-of-sale with AI ordering" />
+  <img src="./banner-malika-kebab-management-system.gif" alt="Malika POS" />
 </p>
 
 # Malika Kebab Management System
@@ -9,7 +8,7 @@ POS system for Malika Kebab booth, Bantul, Yogyakarta. Built with Node.js + Expr
 
 ## Features
 
-- **Order management** — receipt scrolling, totals, payment tracking
+- **Order management** — receipt scanning, totals, payment tracking
 - **AI Tools (7)** — parse order from free-text, recommend upgrades, warn on low stock, predict sales
 - **Google Sheets CMS** — menu management, daily sales dashboard
 - **Offline-first** — SQLite local storage
